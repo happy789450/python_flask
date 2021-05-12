@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+hello user
+
+<p>name is {{ name}}</p>
+<p>age is  {{ age }}</p>
+<p>判断</p>
+{% if name=="rice" %}
+    <p>im rice</p>
+    {% else %}
+    <p>im not rice</p>
+{% endif %}
+<p>循环</p>
+{% for i in city %}
+<p>城市 {{ i }} </p>
+{% endfor %}
+
+<p>字典读取</p>
+{% for key,value in info.items() %}
+    <p>key:{{ key  }} value:{{ value }}</p>
+
+{% endfor %}
+
+
+</body>
+</html>
