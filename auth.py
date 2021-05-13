@@ -1,13 +1,10 @@
-import json
-import os
 import tool_db
+import tool_pass
 from flask import Blueprint
 from flask import request
 from flask import redirect
 from flask import make_response
 from flask import session
-from werkzeug.utils import secure_filename
-from flask import send_from_directory
 
 auth = Blueprint("auth", __name__)
 
@@ -16,6 +13,7 @@ auth = Blueprint("auth", __name__)
 def login():
     username = request.form.get('username')
     password = request.form.get('password')
+    password = tool_pass.md5encrypt(password)
     sql = "select * from user where username = %s and password = %s"
     result = tool_db.updateByParameters(sql, (username, password))
     print(result)
