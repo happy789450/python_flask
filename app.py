@@ -10,6 +10,7 @@ from sersers import servers
 from auth import auth
 from flask import redirect
 from flask import session
+from deploy import deploy
 
 app = Flask(__name__)
 
@@ -20,7 +21,7 @@ app.register_blueprint(rice, url_prefix="/rice")
 app.register_blueprint(views, url_prefix="/views")
 app.register_blueprint(servers, url_prefix="/servers")
 app.register_blueprint(auth, url_prefix="/auth")
-
+app.register_blueprint(deploy, url_prefix="/deploy")
 
 @app.route('/')
 def index():

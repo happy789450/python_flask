@@ -9,3 +9,7 @@ def test():
 @views.route("/servers")
 def servers():
     return render_template("test/servers.html")
+
+@views.route("/deploy")
+def deploy():
+    return render_template("test/deploy.html")

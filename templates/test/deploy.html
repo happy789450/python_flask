@@ -1,0 +1,169 @@
+{% extends "test/base.html" %}
+{% block head %}
+    <title>rice部署系统</title>
+    <script type="text/javascript">
+        function deploy(id) {
+            $.ajax({
+                url: '/deploy/deploy_by_id',
+                type: 'get',
+                cache: false,
+                data: {
+                    id: id,
+                },
+                success: function (data) {
+                    text_search = $('#text_search').val();
+                    pagenow = parseInt($('#pagenow').html());
+                    get_page(pagenow, 14, text_search);
+                }
+            });
+        }
+
+        function update_show(id) {
+            $.ajax({
+                url: '/deploy/get_by_id',
+                type: 'get',
+                cache: false,
+                data: {
+                    id: id,
+                },
+                success: function (data) {
+                    tmpone = JSON.parse(data)[0];
+                    $("#id").attr("value", id);
+                    $("#name").attr("value", tmpone['name']);
+                    $("#hosts_path").attr("value", tmpone['hosts_path']);
+                    $("#hosts_pattern").attr("value", tmpone['hosts_pattern']);
+                    $("#module").attr("value", tmpone['module']);
+                    $("#args").attr("value", tmpone['args']);
+                    $("#forks").attr("value", tmpone['forks']);
+                    $("#updateshow").modal('show');
+                }
+            });
+
+        }
+
+        function get_page(pagenow, pagesize, search) {
+            info = {"pagenow": pagenow, "pagesize": pagesize, search: search};
+            $.ajax({
+                url: '/deploy/get_by_page',
+                type: 'post',
+                cache: false,
+                data: JSON.stringify(info),
+                success: function (data) {
+                    allresult = JSON.parse(data);
+                    $("#tbodycontent").html("");
+                    for (i = 0; i < allresult.length; i++) {
+                        tmpone = '<tr>'
+                        tmpone = tmpone + '<td>' + allresult[i]['name'] + '</td>'
+                        tmpone = tmpone + '<td>' + allresult[i]['hosts_path'] + '</td>'
+                        tmpone = tmpone + '<td>' + allresult[i]['hosts_pattern'] + '</td>'
+                        tmpone = tmpone + '<td>' + allresult[i]['module'] + '</td>'
+                        tmpone = tmpone + '<td>' + allresult[i]['args'] + '</td>'
+                        tmpone = tmpone + '<td>' + allresult[i]['forks'] + '</td>'
+                        tmpone = tmpone + '<td>'
+                        tmpone = tmpone + '<button class="btn btn-sm" onClick="update_show(' + allresult[i]['id'] + ')">更新</button>'
+                        tmpone = tmpone + '<button class="btn btn-sm" onClick="deploy(' + allresult[i]['id'] + ')">部署</button>'
+                        tmpone = tmpone + '</td>'
+                        tmpone = tmpone + '</tr>'
+                        $("#tbodycontent").append(tmpone);
+                    }
+                }
+            });
+            pagedown = '<button type="button" onclick="get_page(' + (pagenow - 1) + ',' + pagesize + ',\'' + search + '\')" class="btn">上一页</button>'
+            pageup = '<button type="button" onclick="get_page(' + (pagenow + 1) + ',' + pagesize + ',\'' + search + '\')" class="btn">下一页</button>'
+            $("#pageinfo").html("当前页: <p style='display: inline;' id='pagenow'>" + pagenow + "</p>");
+            $("#pageinfo").append(pagedown);
+            $("#pageinfo").append(pageup);
+        }
+
+        $(document).ready(function () {
+            get_page(1, 14, "");
+            $('#bt_search').click(function () {
+                text_search = $('text_search').val();
+                get_page(1, 14, text_search)
+            });
+
+            $("#bt_update").click(function () {
+                id = $('#id').val();
+                name = $('#name').val();
+                hosts_path = $('#hosts_path').val();
+                hosts_pattern = $('#hosts_pattern').val();
+                module = $('#module').val();
+                args = $('#args').val();
+                forks = $('#forks').val();
+                info = {
+                    id: id,
+                    name: name,
+                    hosts_path: hosts_path,
+                    hosts_pattern: hosts_pattern,
+                    module: module,
+                    args: args,
+                    forks: forks
+                }
+                $.ajax({
+                    url: '/deploy/update',
+                    type: 'post',
+                    cache: false,
+                    data: JSON.stringify(info),
+                    success: function (data) {
+                        $("#updateshow").modal('hide');
+                        text_search = $('#text_search').val();
+                        pagenow = parseInt($('#pagenow').html());
+                        get_page(pagenow, 14, text_search);
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <form class="form-inline">
+                    <input type="text" class="form-control" id="text_search">
+                    <button type="button" class="btn" id="bt_search" style="margin-left: 1px">搜索</button>
+                </form>
+                <table class="table table-bordered table-hover">
+                    <thead>
+                    <th>部署名</th>
+                    <th>主机配置</th>
+                    <th>主机或主机组</th>
+                    <th>模块</th>
+                    <th>模块参数</th>
+                    <th>并发数</th>
+                    <th>操作</th>
+                    </thead>
+                    <tbody id="tbodycontent">
+                    </tbody>
+                </table>
+                <p id="pageinfo"></p>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="updateshow">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">ansible 配置更新</h4>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <p>id</p>
+                        <input type="text" readonly="readonly" class="form-control" id="id">
+                        <input type="text" class="form-control" id="name">
+                        <input type="text" class="form-control" id="hosts_path">
+                        <input type="text" class="form-control" id="hosts_pattern">
+                        <input type="text" class="form-control" id="module">
+                        <input type="text" class="form-control" id="args">
+                        <input type="text" class="form-control" id="forks">
+                        <button type="button" class="btn" id="bt_update">更新</button>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn" data-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
