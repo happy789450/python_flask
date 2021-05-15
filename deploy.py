@@ -1,11 +1,21 @@
 import tool_db
 import tool_pass
+import datetime
 import json
 import subprocess
+import threading
 from flask import Blueprint
 from flask import request
 
+time1 = datetime.datetime.now().strftime('%Y-%m-%d')
+deploy_log = "deploy" + time1 + ".log"
+
 deploy = Blueprint("deploy", __name__)
+
+
+def shellRun(command):
+    (status, output) = subprocess.getstatusoutput(command)
+    return "status,output"
 
 
 @deploy.route('/deploy_by_id')
@@ -13,11 +23,15 @@ def deploy_by_id():
     id = int(request.args.get('id'))
     sql = "select * from deploy where id = %s"
     result = tool_db.selectByParameters(sql, params=(id,))[0]
-    command = """/usr/local/bin/ansible -i {0} {1} -m {2} -a  '{3}' -f {4}""".format(result['hosts_path'], result['hosts_pattern'],
-                                                                      result['module'], result['args'],
-                                                                    result['forks'])
-    (status,output)=subprocess.getstatusoutput(command)
-    return output
+    command = """/usr/local/bin/ansible -i {0} {1} -m {2} -a  '{3}' -f {4} >/tmp/{5} 2>&1""".format(result['hosts_path'],
+                                                                                              result['hosts_pattern'],
+                                                                                              result['module'],
+                                                                                              result['args'],
+                                                                                              result['forks'],
+                                                                                              deploy_log)
+    t1 = threading.Thread(target=shellRun, args=(command))
+    t1.start()
+    return json.dumps({"command":command,"log_name":deploy_log})
 
 
 @deploy.route('/update', methods=['get', 'post'])
