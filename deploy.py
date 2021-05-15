@@ -23,13 +23,13 @@ def deploy_by_id():
     id = int(request.args.get('id'))
     sql = "select * from deploy where id = %s"
     result = tool_db.selectByParameters(sql, params=(id,))[0]
-    command = """/usr/local/bin/ansible -i {0} {1} -m {2} -a  '{3}' -f {4} >logs/{5} 2>&1""".format(result['hosts_path'],
+    command = """/usr/local/bin/ansible -i {0} {1} -m {2} -a  '{3}' -f {4} >{5} 2>&1""".format(result['hosts_path'],
                                                                                               result['hosts_pattern'],
                                                                                               result['module'],
                                                                                               result['args'],
                                                                                               result['forks'],
                                                                                               deploy_log)
-    t1 = threading.Thread(target=shellRun, args=(command))
+    t1 = threading.Thread(target=shellRun, args=(command,))
     t1.start()
     return json.dumps({"command":command,"log_name":deploy_log})
 
