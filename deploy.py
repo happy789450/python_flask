@@ -6,7 +6,7 @@ import threading
 from flask import Blueprint
 from flask import request
 
-time1 = datetime.datetime.now().strftime('%Y-%m-%d')
+time1 = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
 deploy_log = "deploy" + time1 + ".log"
 
 deploy = Blueprint("deploy", __name__)
