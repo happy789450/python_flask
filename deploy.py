@@ -6,8 +6,6 @@ import threading
 from flask import Blueprint
 from flask import request
 
-
-
 deploy = Blueprint("deploy", __name__)
 
 
@@ -39,8 +37,26 @@ def deploy_by_id():
         deploy_log, deploy_log)
     t1 = threading.Thread(target=shellRun, args=(command,))
     t1.start()
+    return json.dumps({"command": runcommand, "log_name": deploy_log})
 
-    print(deploy_log)
+
+@deploy.route('/deploy_by_id_2')
+def deploy_by_id_2():
+    time1 = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+    deploy_log = "deploy" + time1 + ".log"
+    id = int(request.args.get('id'))
+    sql = "select * from deploy where id = %s"
+    result = tool_db.selectByParameters(sql, params=(id,))[0]
+    runcommand = """/usr/local/bin/ansible-playbook {0} -f {1} """.format(
+        result['args'],
+        result['forks'],
+    )
+    command = """/usr/local/bin/ansible-playbook "{0}" -f {1} >>static/logs/{2} 2>&1 ;printf "\n\t\t\t"  >>static/logs/{3} """.format(
+        result['args'],
+        result['forks'],
+        deploy_log, deploy_log)
+    t1 = threading.Thread(target=shellRun, args=(command,))
+    t1.start()
     return json.dumps({"command": runcommand, "log_name": deploy_log})
 
 

@@ -42,6 +42,37 @@
             });
         }
 
+        function deploy_2(id) {
+            $("#isdeploy").html("执行中，请稍等")
+            $.ajax({
+                url: '/deploy/deploy_by_id_2',
+                type: 'get',
+                cache: false,
+                data: {
+                    id: id,
+                },
+                success: function (data) {
+                    allresult = JSON.parse(data);
+                    $("#deploylog").modal('show');
+                    $("#p_ansible_command").html(allresult['command']);
+                    deployInterval = setInterval(function () {
+                        $.ajax({
+                            url: '/static/logs/' + allresult['log_name'],
+                            type: 'get',
+                            cache: false,
+                            success: function (data) {
+                                $("#pre_deploy_result").html(data);
+                                if (data.indexOf("\n\t\t\t") !=-1){
+                                    clearInterval(deployInterval)
+                                    $("#isdeploy").html("执行结束")
+                                }
+                            }
+                        });
+                    }, 3000);
+                }
+            });
+        }
+
         function update_show(id) {
             $.ajax({
                 url: '/deploy/get_by_id',
@@ -86,6 +117,7 @@
                         tmpone = tmpone + '<td>'
                         tmpone = tmpone + '<button class="btn btn-sm" onClick="update_show(' + allresult[i]['id'] + ')">更新</button>'
                         tmpone = tmpone + '<button class="btn btn-sm" onClick="deploy(' + allresult[i]['id'] + ')">部署</button>'
+                        tmpone = tmpone + '<button class="btn btn-sm" onClick="deploy_2(' + allresult[i]['id'] + ')">剧本</button>'
                         tmpone = tmpone + '</td>'
                         tmpone = tmpone + '</tr>'
                         $("#tbodycontent").append(tmpone);
