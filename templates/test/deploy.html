@@ -12,6 +12,7 @@
     </style>
     <script type="text/javascript">
         function deploy(id) {
+            $("#isdeploy").html("执行中，请稍等")
             $.ajax({
                 url: '/deploy/deploy_by_id',
                 type: 'get',
@@ -32,6 +33,7 @@
                                 $("#pre_deploy_result").html(data);
                                 if (data.indexOf("\n\t\t\t") !=-1){
                                     clearInterval(deployInterval)
+                                    $("#isdeploy").html("执行结束")
                                 }
                             }
                         });
@@ -193,7 +195,7 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">ansible log</h4>
+                    <h4 class="modal-title" id="isdeploy">ansible log</h4>
                 </div>
                 <div class="modal-body">
                     <p id="p_ansible_command"></p>
