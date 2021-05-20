@@ -28,14 +28,14 @@ def deploy_by_id():
         result['module'],
         result['args'],
         result['forks'],
-        )
-    command = """/usr/local/bin/ansible -i {0} {1} -m {2} -a '{3}' -f {4} >>/static/logs/{5} 2>&1""".format(
+    )
+    command = """/usr/local/bin/ansible -i {0} {1} -m {2} -a '{3}' -f {4} >>static/logs/{5} 2>&1 ;printf \n\t\t  >>static/logs/{6} """.format(
         result['hosts_path'],
         result['hosts_pattern'],
         result['module'],
         result['args'],
         result['forks'],
-        deploy_log)
+        deploy_log, deploy_log)
     t1 = threading.Thread(target=shellRun, args=(command,))
     t1.start()
     return json.dumps({"command": runcommand, "log_name": deploy_log})
