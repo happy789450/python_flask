@@ -6,8 +6,7 @@ import threading
 from flask import Blueprint
 from flask import request
 
-time1 = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
-deploy_log = "deploy" + time1 + ".log"
+
 
 deploy = Blueprint("deploy", __name__)
 
@@ -19,6 +18,8 @@ def shellRun(command):
 
 @deploy.route('/deploy_by_id')
 def deploy_by_id():
+    time1 = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+    deploy_log = "deploy" + time1 + ".log"
     id = int(request.args.get('id'))
     sql = "select * from deploy where id = %s"
     result = tool_db.selectByParameters(sql, params=(id,))[0]
@@ -38,6 +39,8 @@ def deploy_by_id():
         deploy_log, deploy_log)
     t1 = threading.Thread(target=shellRun, args=(command,))
     t1.start()
+
+    print(deploy_log)
     return json.dumps({"command": runcommand, "log_name": deploy_log})
 
 
