@@ -29,7 +29,7 @@ def deploy_by_id():
         result['args'],
         result['forks'],
     )
-    command = """/usr/local/bin/ansible -i {0} {1} -m {2} -a '{3}' -f {4} >>static/logs/{5} 2>&1 ;printf \n\t\t  >>static/logs/{6} """.format(
+    command = """/usr/local/bin/ansible -i {0} {1} -m {2} -a '{3}' -f {4} >>static/logs/{5} 2>&1 ;printf "\n\t\t\t"  >>static/logs/{6} """.format(
         result['hosts_path'],
         result['hosts_pattern'],
         result['module'],

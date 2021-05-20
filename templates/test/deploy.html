@@ -23,13 +23,16 @@
                     allresult = JSON.parse(data);
                     $("#deploylog").modal('show');
                     $("#p_ansible_command").html(allresult['command']);
-                    setInterval(function () {
+                    deployInterval = setInterval(function () {
                         $.ajax({
                             url: '/static/logs/' + allresult['log_name'],
                             type: 'get',
                             cache: false,
                             success: function (data) {
                                 $("#pre_deploy_result").html(data);
+                                if (data.indexOf("\n\t\t\t") !=-1){
+                                    clearInterval(deployInterval)
+                                }
                             }
                         });
                     }, 3000);
