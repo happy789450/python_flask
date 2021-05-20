@@ -3,7 +3,6 @@ import requests
 from flask import request
 from flask import Flask
 from flask import render_template
-from shijiange import shijiange
 from rice import rice
 from views import views
 from sersers import servers
@@ -16,7 +15,6 @@ app = Flask(__name__)
 
 app.config['SECRET_KEY'] = '123456'
 app.permanent_session_lifetime=datetime.timedelta(minutes=60)
-app.register_blueprint(shijiange, url_prefix="/shijiange")
 app.register_blueprint(rice, url_prefix="/rice")
 app.register_blueprint(views, url_prefix="/views")
 app.register_blueprint(servers, url_prefix="/servers")

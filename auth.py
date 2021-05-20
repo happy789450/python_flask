@@ -24,6 +24,7 @@ def login():
         # response.set_cookie('username',username,max_age=86400)
         # return response
     else:
+
         return redirect("/static/login.html")
 
 

@@ -1,5 +1,4 @@
 import tool_db
-import tool_pass
 import datetime
 import json
 import subprocess
@@ -23,15 +22,23 @@ def deploy_by_id():
     id = int(request.args.get('id'))
     sql = "select * from deploy where id = %s"
     result = tool_db.selectByParameters(sql, params=(id,))[0]
-    command = """/usr/local/bin/ansible -i {0} {1} -m {2} -a  '{3}' -f {4} >logs/{5} 2>&1""".format(result['hosts_path'],
-                                                                                              result['hosts_pattern'],
-                                                                                              result['module'],
-                                                                                              result['args'],
-                                                                                              result['forks'],
-                                                                                              deploy_log)
+    runcommand = """/usr/local/bin/ansible -i {0} {1} -m {2} -a '{3}' -f {4} """.format(
+        result['hosts_path'],
+        result['hosts_pattern'],
+        result['module'],
+        result['args'],
+        result['forks'],
+        )
+    command = """/usr/local/bin/ansible -i {0} {1} -m {2} -a '{3}' -f {4} >>/static/logs/{5} 2>&1""".format(
+        result['hosts_path'],
+        result['hosts_pattern'],
+        result['module'],
+        result['args'],
+        result['forks'],
+        deploy_log)
     t1 = threading.Thread(target=shellRun, args=(command,))
     t1.start()
-    return json.dumps({"command":command,"log_name":deploy_log})
+    return json.dumps({"command": runcommand, "log_name": deploy_log})
 
 
 @deploy.route('/update', methods=['get', 'post'])
@@ -62,10 +69,7 @@ def get_by_page():
     pagesize = info['pagesize']
     search = info['search']
     search = "%{0}%".format(search)
-    # print(search)
     sql = 'select * from deploy where name like %s  limit %s,%s'
-    # print(sql)
     params = (search, (pagenow - 1) * pagesize, pagesize)
-    # print(params)
     result = tool_db.selectByParameters(sql, params=params)
     return json.dumps(result)

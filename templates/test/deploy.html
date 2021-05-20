@@ -1,6 +1,15 @@
 {% extends "test/base.html" %}
 {% block head %}
     <title>rice部署系统</title>
+    <style type="text/css">
+        #pre_deploy_result {
+            white-space: pre-wrap;
+            white-space: -moz-pre-wrap;
+            white-space: -o-pre-wrap;
+            word-wrap: break-word;
+        }
+
+    </style>
     <script type="text/javascript">
         function deploy(id) {
             $.ajax({
@@ -11,9 +20,19 @@
                     id: id,
                 },
                 success: function (data) {
-                    text_search = $('#text_search').val();
-                    pagenow = parseInt($('#pagenow').html());
-                    get_page(pagenow, 14, text_search);
+                    allresult = JSON.parse(data);
+                    $("#deploylog").modal('show');
+                    $("#p_ansible_command").html(allresult['command']);
+                    setInterval(function () {
+                        $.ajax({
+                            url: '/static/logs/' + allresult['log_name'],
+                            type: 'get',
+                            cache: false,
+                            success: function (data) {
+                                $("#pre_deploy_result").html(data);
+                            }
+                        });
+                    }, 3000);
                 }
             });
         }
@@ -166,4 +185,22 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="deploylog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">ansible log</h4>
+                </div>
+                <div class="modal-body">
+                    <p id="p_ansible_command"></p>
+                    <pre id="pre_deploy_result"></pre>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn" data-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 {% endblock %}
